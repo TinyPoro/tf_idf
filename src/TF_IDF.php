@@ -107,22 +107,16 @@ class TF_IDF{
     }
 
     public function getTfIdf($term, $docId){
-        try{
-            $entry = $this->dictionary[$term];
+        $entry = $this->dictionary[$term];
 
-            if($this->flag) $tf = $this->a + (1 - $this->a) * ($entry['postings'][$docId]['tf'] / $this->documents[$docId]['max_tf']);
-            else $tf = $entry['postings'][$docId]['tf'];
+        if($this->flag) $tf = $this->a + (1 - $this->a) * ($entry['postings'][$docId]['tf'] / $this->documents[$docId]['max_tf']);
+        else $tf = $entry['postings'][$docId]['tf'];
 
-            $idf = log(count($this->documents) / $entry['df'], 2);
+        $idf = log(count($this->documents) / $entry['df'], 2);
 
-            $tf_idf = $tf * $idf;
+        $tf_idf = $tf * $idf;
 
-            return -$tf_idf;
-        }catch (\Exception $e){
-            return 0;
-        }
-
-
+        return $tf_idf;
     }
 
     public function getDocTfIdf($docId){
