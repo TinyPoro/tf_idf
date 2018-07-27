@@ -18,6 +18,6 @@ tf(t, d) = α + (1 − α)(ft,d/max(ft',d))
 ### Lưu ý : Để có hiệu quả tốt
 1. Chỉ tính tf.idf với các danh từ
 2. Cộng thêm điểm cho các câu có chứa từ trong title.
-3.
+3. Áp dụng trọng số vị trí vào giá trị điểm cho bước 2 theo thang điểm [0,1]
 
 ###### [Tham khảo](http://research.nii.ac.jp/ntcir/workshop/OnlineProceedings3/NTCIR3-TSC-SekiY.pdf)
