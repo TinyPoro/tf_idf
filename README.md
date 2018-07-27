@@ -1,7 +1,7 @@
 # Tf_Idf
 
 ### Sử dụng:
-1.Hàm khởi tạo nhận 2 tham số `TF_IDF($α = 0.5, $flag = true)`
+1.Hàm khởi tạo nhận 3 tham số `TF_IDF($language, $α = 0.5, $flag = true)`
 - Mặc định  khi tính tf sẽ sử dụng công thức sau để giảm sự ảnh hưởng của các câu dài
 ```
 tf(t, d) = α + (1 − α)(ft,d/max(ft',d))

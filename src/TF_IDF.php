@@ -9,20 +9,62 @@
 namespace Poro\Tf_Idf;
 
 class TF_IDF{
+    public $language;
+
     protected $dictionary;
 
     protected $documents;
+
+    protected $stopword_path;
 
     protected $docId = 1;
 
     protected $a = 0.5;
     protected $flag = true;
 
-    public function __construct($a = 0.5, $flag=true){
+    public function __construct($language, $a = 0.5, $flag=true){
+        $this->language = $language;
+        $this->stopword_path = $this->resoleStopwordFile($language);
+
         $this->a = $a;
     }
 
+    protected function resoleStopwordFile($language){
+        $file = __DIR__."/stopword/$language.txt";
+
+        if(!file_exists( $file)){
+            throw new \Exception("Not support tf.idf for language " . $language);
+        }
+
+        return $file;
+    }
+
+    public function standardText($text){
+        $text = strtolower($text);
+        $text = trim($text);
+
+        $text = $this->removeStopword($text);
+
+        $text = str_replace(['-', '.', ';', ',', '?', ':', '"', '!', '(', ')', '[', ']', '_', '-', '\'', '{', '}', '/'], '', $text);
+        $text = preg_replace('/\d+/', '', $text);
+        $text = preg_replace('/\s{2,}/', ' ', $text);
+
+        return $text;
+    }
+
+    public function removeStopword($text){
+        $lines = file($this->stopword_path);
+
+        foreach($lines as $line) {
+            $text = str_replace($line , ' ', $text);
+        }
+
+        return $text;
+    }
+
     public function addDocText($text){
+        $text = $this->standardText($text);
+
         $terms = explode(' ', $text);
         $terms = array_filter($terms);
 
@@ -87,7 +129,7 @@ class TF_IDF{
         $tf_idf = 0;
 
         foreach($terms as $term) {
-            $tf_idf -= $this->getTfIdf($term, $docId);
+            $tf_idf += $this->getTfIdf($term, $docId);
         }
 
         return $tf_idf;
