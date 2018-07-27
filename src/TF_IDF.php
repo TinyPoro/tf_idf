@@ -27,6 +27,20 @@ class TF_IDF{
         $this->stopword_path = $this->resoleStopwordFile($language);
 
         $this->a = $a;
+
+        $this->getResourse();
+    }
+
+    private function getResourse(){
+        $resource = file_get_contents(__DIR__."/Resource/resource.json");
+
+        $documents = json_decode($resource, true);
+
+        if(!is_array($documents)) return;
+
+        foreach($documents as $data){
+            $this->addDocText($data['text']);
+        }
     }
 
     protected function resoleStopwordFile($language){
@@ -104,6 +118,12 @@ class TF_IDF{
         $data['max_tf'] = $max_tf;
 
         $this->documents[$docId] = $data;
+
+        $this->writeResource();
+    }
+
+    public function writeResource(){
+        file_put_contents(__DIR__."/Resource/resource.json", json_encode($this->documents));
     }
 
     public function getTfIdf($term, $docId){
