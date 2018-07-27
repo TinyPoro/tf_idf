@@ -1,0 +1,13 @@
+{
+    "name": "tinyporo/tf_idf",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "tinyporo",
+            "email": "ngophuongtuan@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
