@@ -13,7 +13,7 @@ class TF_IDF{
 
     protected $documents;
 
-    protected $docId = 0;
+    protected $docId = 1;
 
     protected $a = 0.5;
     protected $flag = true;
@@ -24,7 +24,7 @@ class TF_IDF{
 
     public function addDocText($text){
         $terms = explode(' ', $text);
-        $terms = array_values($terms);
+        $terms = array_filter($terms);
 
         foreach($terms as $term) {
             if(!isset($this->dictionary[$term])) {
@@ -41,7 +41,7 @@ class TF_IDF{
         $this->addDoc($this->docId, $text);
 
         $this->docId++;
-        return $this->docId;
+        return $this->docId - 1;
     }
 
     protected function addDoc($docId, $text){
@@ -50,7 +50,7 @@ class TF_IDF{
         ];
 
         $terms = explode(' ', $text);
-        $terms = array_values($terms);
+        $terms = array_filter($terms);
 
         $max_tf = 0;
 
@@ -82,12 +82,12 @@ class TF_IDF{
         if(!$text) throw new \Exception("Document $docId does not exist!");
 
         $terms = explode(' ', $text);
-        $terms = array_values($terms);
+        $terms = array_filter($terms);
 
         $tf_idf = 0;
 
         foreach($terms as $term) {
-            $tf_idf += $this->getTfIdf($term, $docId);
+            $tf_idf -= $this->getTfIdf($term, $docId);
         }
 
         return $tf_idf;
