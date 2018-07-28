@@ -32,15 +32,20 @@ class TF_IDF{
     }
 
     private function getResourse(){
-        $resource = file_get_contents(__DIR__."/Resource/resource.json");
-
-        $documents = json_decode($resource, true);
-
-        if(!is_array($documents)) return;
-
-        foreach($documents as $data){
-            $this->addDocText($data['text']);
+        $resource_path = __DIR__."/Resource/$this->language-resource.json";
+        if(!file_exists($resource_path)) {
+            $resource_file = fopen($resource_path, "w");
+            fclose($resource_file);
         }
+
+        $resource = file_get_contents($resource_path);
+
+        $data = json_decode($resource, true);
+
+        if(!is_array($data)) return;
+
+        $this->dictionary = $data['dictionary'];
+        $this->docId = $data['docId'] + 1;
     }
 
     protected function resoleStopwordFile($language){
@@ -54,7 +59,7 @@ class TF_IDF{
     }
 
     public function standardText($text){
-        $text = strtolower($text);
+        $text = mb_strtolower($text);
         $text = trim($text);
 
         $text = $this->removeStopword($text);
@@ -123,7 +128,15 @@ class TF_IDF{
     }
 
     public function writeResource(){
-        file_put_contents(__DIR__."/Resource/resource.json", json_encode($this->documents));
+        $data = [
+            'docId' => $this->docId,
+            'dictionary' => $this->dictionary
+        ];
+
+        $value = json_encode($data);
+        if(!$value) throw new \Exception("Can not encode data!");
+
+        file_put_contents(__DIR__."/Resource/$this->language-resource.json", $value);
     }
 
     public function getTfIdf($term, $docId){
