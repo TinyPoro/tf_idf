@@ -1,13 +1,12 @@
 # Tf_Idf
 
 ### Sử dụng:
-1.Hàm khởi tạo nhận 3 tham số `TF_IDF($language, $α = 0.5, $flag = true)`
-- Mặc định  khi tính tf sẽ sử dụng công thức sau để giảm sự ảnh hưởng của các câu dài
+1.Hàm khởi tạo nhận 2 tham số `TF_IDF($language, $α = 0.5, )`
+- Khi tính tf sẽ sử dụng công thức sau để giảm sự ảnh hưởng của các câu dài
 ```
 tf(t, d) = α + (1 − α)(ft,d/max(ft',d))
 ```
 - α mặc định sẽ là 0,5. Bạn có thể truyền tham số α vào hàm khởi tạo.
-- Đặt $flag = false nếu bạn không muốn sử dụng công thức trên
 
 2.Sử dụng hàm `addDocText` để thêm văn bản, hàm sẽ trả về `docId` tương ứng với văn bản bạn vừa thêm.
 

@@ -20,9 +20,8 @@ class TF_IDF{
     protected $docId = 1;
 
     protected $a = 0.5;
-    protected $flag = true;
 
-    public function __construct($language, $a = 0.5, $flag=true){
+    public function __construct($language, $a = 0.5){
         $this->language = $language;
         $this->stopword_path = $this->resoleStopwordFile($language);
 
@@ -143,8 +142,7 @@ class TF_IDF{
         try{
             $entry = $this->dictionary[$term];
 
-            if($this->flag) $tf = $this->a + (1 - $this->a) * ($entry['postings'][$docId]['tf'] / $this->documents[$docId]['max_tf']);
-            else $tf = $entry['postings'][$docId]['tf'];
+            $tf = $this->a + (1 - $this->a) * ($entry['postings'][$docId]['tf'] / $this->documents[$docId]['max_tf']);
 
             $idf = log(count($this->documents) / $entry['df'], 2);
 
