@@ -34,13 +34,15 @@ class TF_IDF{
         $resource_path = __DIR__."/Resource/$this->language-resource.json";
         if(!file_exists($resource_path)) {
             $resource_file = fopen($resource_path, "w");
+            if(!$resource_file) throw new \Exception("Can not open $resource_file!");
+
             fclose($resource_file);
         }
 
         $resource = file_get_contents($resource_path);
+        if(!$resource) return;
 
         $data = json_decode($resource, true);
-
         if(!is_array($data)) return;
 
         $this->dictionary = $data['dictionary'];
@@ -61,10 +63,15 @@ class TF_IDF{
         $text = mb_strtolower($text);
         $text = trim($text);
 
-        $text = $this->removeStopword($text);
+        try{
+            $text = $this->removeStopword($text);
+        }catch (\Exception $e){
+            throw new \Exception($e->getMessage());
+        }
 
         $text = str_replace(['-', '.', ';', ',', '?', ':', '"', '!', '(', ')', '[', ']', '_', '-', '\'', '{', '}', '/'], '', $text);
         $text = preg_replace('/\d+/', '', $text);
+        if(!$text) throw new \Exception("Error while standard text!");
         $text = preg_replace('/\s{2,}/', ' ', $text);
 
         return $text;
@@ -72,16 +79,22 @@ class TF_IDF{
 
     public function removeStopword($text){
         $lines = file($this->stopword_path);
+        if(!$lines) throw new \Exception("Can not read ".$this->stopword_path);
 
         foreach($lines as $line) {
             $text = str_replace($line , ' ', $text);
+            if(!$text) throw new \Exception("Error while remove stop words!");
         }
 
         return $text;
     }
 
     public function addDocText($text){
-        $text = $this->standardText($text);
+        try{
+            $text = $this->standardText($text);
+        }catch (\Exception $e){
+            throw new \Exception($e->getMessage());
+        }
 
         $terms = explode(' ', $text);
         $terms = array_filter($terms);
