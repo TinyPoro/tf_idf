@@ -18,6 +18,7 @@ class TF_IDF{
     protected $documents;
 
     protected $stopword_path;
+    protected $resource_path;
 
     public $docId = 1;
 
@@ -45,10 +46,13 @@ class TF_IDF{
         }
     }
 
-    private static function getResourse($language){
-        $resource_path = __DIR__."/Resource/$language-resource";
+    public function setResoursePath(){
+        $this->resource_path = __DIR__."/Resource/$this->language-resource";
+    }
+
+    private static function getResourse($resource_path){
         if(!file_exists($resource_path)) {
-            $resource_file = fopen($resource_path, "w");
+            $resource_file = fopen(resource_path, "w");
             fclose($resource_file);
         }
 
