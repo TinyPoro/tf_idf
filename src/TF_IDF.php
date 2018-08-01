@@ -37,6 +37,8 @@ class TF_IDF{
     public static function getObject($language, $a = 0.5){
         try{
             $obj = self::getResourse($language);
+            $obj->stopword_path = $obj->resoleStopwordFile($language);
+
             return $obj;
         }catch (\Exception $e){
             return new TF_IDF($language, $a);
