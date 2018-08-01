@@ -139,7 +139,7 @@ class TF_IDF{
         $this->writeResource();
     }
 
-    public function writeResource(){
+    public function writeResource(){return;
         $data = [
             'docId' => $this->docId,
             'dictionary' => $this->dictionary
