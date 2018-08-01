@@ -8,6 +8,8 @@
 
 namespace Poro\Tf_Idf;
 
+ini_set('memory_limit', '2048M');
+
 class TF_IDF{
     public $language;
 
@@ -17,36 +19,78 @@ class TF_IDF{
 
     protected $stopword_path;
 
-    protected $docId = 1;
+    public $docId = 1;
 
     protected $a = 0.5;
 
     public function __construct($language, $a = 0.5){
         $this->language = $language;
-        $this->stopword_path = $this->resoleStopwordFile($language);
+        try{
+            $this->stopword_path = $this->resoleStopwordFile($language);
+        }catch (\Exception $e){
+            throw new \Exception('Can not resolve stop words!');
+        }
 
         $this->a = $a;
-
-        $this->getResourse();
     }
 
-    private function getResourse(){
-        $resource_path = __DIR__."/Resource/$this->language-resource.json";
+    public static function getObject($language, $a = 0.5){
+        try{
+            $obj = self::getResourse($language);
+            return $obj;
+        }catch (\Exception $e){
+            return new TF_IDF($language, $a);
+        }
+    }
+
+    private static function getResourse($language){
+        $resource_path = __DIR__."/Resource/$language-resource";
         if(!file_exists($resource_path)) {
             $resource_file = fopen($resource_path, "w");
-            if(!$resource_file) throw new \Exception("Can not open $resource_file!");
-
             fclose($resource_file);
         }
 
-        $resource = file_get_contents($resource_path);
-        if(!$resource) return;
+        try{
+            $binary_array = [];
 
-        $data = json_decode($resource, true);
-        if(!is_array($data)) return;
+            $lines = file($resource_path);
+            if(!$lines) throw new \Exception('Resource path empty!');
 
-        $this->dictionary = $data['dictionary'];
-        $this->docId = $data['docId'] + 1;
+            foreach ($lines as $line) {
+                $datas = explode(' ', $line);
+                foreach ($datas as $data){
+                    $binary_array[] = $data;
+                }
+            }
+
+            $serialized_data = call_user_func_array('pack', array_merge(array('C*'), $binary_array));
+            $obj = unserialize($serialized_data);
+
+            return $obj;
+        }catch (\Exception $e){
+            throw new \Exception($e->getMessage());
+        }
+    }
+
+    public static function writeResource(TF_IDF $obj){
+        try{
+            $resource_path = __DIR__."/Resource/$obj->language-resource";
+
+            //convert obj to binary data
+            $serialized_data = serialize($obj);
+            $binary_data = unpack("C*",$serialized_data);
+
+            //store binary data in binary file
+            $file = fopen($resource_path, 'w+');
+            $bin_str = '';
+            foreach ($binary_data as $data) {
+                $bin_str .= $data." ";
+            }
+            fwrite($file, $bin_str);
+            fclose($file);
+        }catch (\Exception $e){
+            throw new \Exception($e->getMessage());
+        }
     }
 
     protected function resoleStopwordFile($language){
@@ -63,15 +107,10 @@ class TF_IDF{
         $text = mb_strtolower($text);
         $text = trim($text);
 
-        try{
-            $text = $this->removeStopword($text);
-        }catch (\Exception $e){
-            throw new \Exception($e->getMessage());
-        }
+        $text = $this->removeStopword($text);
 
         $text = str_replace(['-', '.', ';', ',', '?', ':', '"', '!', '(', ')', '[', ']', '_', '-', '\'', '{', '}', '/'], '', $text);
         $text = preg_replace('/\d+/', '', $text);
-        if(!$text) throw new \Exception("Error while standard text!");
         $text = preg_replace('/\s{2,}/', ' ', $text);
 
         return $text;
@@ -79,22 +118,16 @@ class TF_IDF{
 
     public function removeStopword($text){
         $lines = file($this->stopword_path);
-        if(!$lines) throw new \Exception("Can not read ".$this->stopword_path);
 
         foreach($lines as $line) {
             $text = str_replace($line , ' ', $text);
-            if(!$text) throw new \Exception("Error while remove stop words!");
         }
 
         return $text;
     }
 
     public function addDocText($text){
-        try{
-            $text = $this->standardText($text);
-        }catch (\Exception $e){
-            throw new \Exception($e->getMessage());
-        }
+        $text = $this->standardText($text);
 
         $terms = explode(' ', $text);
         $terms = array_filter($terms);
@@ -135,20 +168,6 @@ class TF_IDF{
         $data['max_tf'] = $max_tf;
 
         $this->documents[$docId] = $data;
-
-        $this->writeResource();
-    }
-
-    public function writeResource(){return;
-        $data = [
-            'docId' => $this->docId,
-            'dictionary' => $this->dictionary
-        ];
-
-        $value = json_encode($data);
-        if(!$value) throw new \Exception("Can not encode data!");
-
-        file_put_contents(__DIR__."/Resource/$this->language-resource.json", $value);
     }
 
     public function getTfIdf($term, $docId){
